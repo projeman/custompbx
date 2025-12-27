@@ -1,8 +1,6 @@
+# syntax=docker/dockerfile:1.7
 # ====== BUILD STAGE (temporary container) ======
 FROM debian:bookworm AS builder
-
-# Set SIGNALWIRE_TOKEN build argument
-ARG SIGNALWIRE_TOKEN
 
 # explicitly set user/group IDs
 RUN groupadd -r freeswitch --gid=999 && useradd -r -g freeswitch --uid=999 freeswitch
@@ -21,10 +19,14 @@ RUN wget --no-check-certificate -O /usr/local/share/ca-certificates/mozilla.crt 
 RUN update-ca-certificates
 
 # Download and import the SignalWire FreeSWITCH repository key
-RUN wget --http-user=signalwire --http-password=${SIGNALWIRE_TOKEN} -O /usr/share/keyrings/signalwire-freeswitch-repo.gpg https://freeswitch.signalwire.com/repo/deb/debian-release/signalwire-freeswitch-repo.gpg
+RUN --mount=type=secret,id=signalwire_token \
+    SIGNALWIRE_TOKEN="$(cat /run/secrets/signalwire_token)" && \
+    wget --http-user=signalwire --http-password=${SIGNALWIRE_TOKEN} -O /usr/share/keyrings/signalwire-freeswitch-repo.gpg https://freeswitch.signalwire.com/repo/deb/debian-release/signalwire-freeswitch-repo.gpg
 
 # Configure authentication
-RUN echo "machine freeswitch.signalwire.com login signalwire password ${SIGNALWIRE_TOKEN}" > /etc/apt/auth.conf
+RUN --mount=type=secret,id=signalwire_token \
+    SIGNALWIRE_TOKEN="$(cat /run/secrets/signalwire_token)" && \
+    echo "machine freeswitch.signalwire.com login signalwire password ${SIGNALWIRE_TOKEN}" > /etc/apt/auth.conf
 RUN chmod 600 /etc/apt/auth.conf
 
 # Add the SignalWire FreeSWITCH repository to the sources.list
