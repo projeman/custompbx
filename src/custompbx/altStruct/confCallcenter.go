@@ -42,28 +42,33 @@ func (w *ConfigCallcenterQueueParameter) GetTableName() string {
 }
 
 type Agent struct {
-	Id                int64  `xml:"-" json:"id" customsql:"pkey:id;check(id <> 0)"`
-	Name              string `xml:"-" json:"name" customsql:"name"`
-	Type              string `xml:"-" json:"type" customsql:"type"`
-	System            string `xml:"-" json:"system" customsql:"system"`
-	InstanceId        string `xml:"-" json:"instance_id" customsql:"instance_id"`
-	Uuid              string `xml:"-" json:"uuid" customsql:"uuid"`
-	Contact           string `xml:"-" json:"contact" customsql:"contact"`
-	Status            string `xml:"-" json:"status" customsql:"status"`
-	State             string `xml:"-" json:"state" customsql:"state"`
-	MaxNoAnswer       int64  `xml:"-" json:"max_no_answer" customsql:"max_no_answer"`
-	WrapUpTime        int64  `xml:"-" json:"wrap_up_time" customsql:"wrap_up_time"`
-	RejectDelayTime   int64  `xml:"-" json:"reject_delay_time" customsql:"reject_delay_time"`
-	BusyDelayTime     int64  `xml:"-" json:"busy_delay_time" customsql:"busy_delay_time"`
-	NoAnswerDelayTime int64  `xml:"-" json:"no_answer_delay_time" customsql:"no_answer_delay_time"`
-	LastBridgeStart   int64  `xml:"-" json:"last_bridge_start" customsql:"last_bridge_start"`
-	LastBridgeEnd     int64  `xml:"-" json:"last_bridge_end" customsql:"last_bridge_end"`
-	LastOfferedCall   int64  `xml:"-" json:"last_offered_call" customsql:"last_offered_call"`
-	LastStatusChange  int64  `xml:"-" json:"last_status_change" customsql:"last_status_change"`
-	NoAnswerCount     int64  `xml:"-" json:"no_answer_count" customsql:"no_answer_count"`
-	CallsAnswered     int64  `xml:"-" json:"calls_answered" customsql:"calls_answered"`
-	TalkTime          int64  `xml:"-" json:"talk_time" customsql:"talk_time"`
-	ReadyTime         int64  `xml:"-" json:"ready_time" customsql:"ready_time"`
+	Id                 int64  `xml:"-" json:"id" customsql:"pkey:id;check(id <> 0)"`
+	Name               string `xml:"-" json:"name" customsql:"name"`
+	Type               string `xml:"-" json:"type" customsql:"type"`
+	System             string `xml:"-" json:"system" customsql:"system;default='single_box'"`
+	InstanceId         string `xml:"-" json:"instance_id" customsql:"instance_id;default='single_box'"`
+	Uuid               string `xml:"-" json:"uuid" customsql:"uuid;null"`
+	Contact            string `xml:"-" json:"contact" customsql:"contact;null"`
+	Status             string `xml:"-" json:"status" customsql:"status"`
+	State              string `xml:"-" json:"state" customsql:"state"`
+	MaxNoAnswer        int64  `xml:"-" json:"max_no_answer" customsql:"max_no_answer;null"`
+	WrapUpTime         int64  `xml:"-" json:"wrap_up_time" customsql:"wrap_up_time;null"`
+	RejectDelayTime    int64  `xml:"-" json:"reject_delay_time" customsql:"reject_delay_time;null"`
+	BusyDelayTime      int64  `xml:"-" json:"busy_delay_time" customsql:"busy_delay_time;null"`
+	NoAnswerDelayTime  int64  `xml:"-" json:"no_answer_delay_time" customsql:"no_answer_delay_time;null"`
+	LastBridgeStart    int64  `xml:"-" json:"last_bridge_start" customsql:"last_bridge_start;null"`
+	LastBridgeEnd      int64  `xml:"-" json:"last_bridge_end" customsql:"last_bridge_end;null"`
+	LastOfferedCall    int64  `xml:"-" json:"last_offered_call" customsql:"last_offered_call;null"`
+	LastStatusChange   int64  `xml:"-" json:"last_status_change" customsql:"last_status_change;null"`
+	NoAnswerCount      int64  `xml:"-" json:"no_answer_count" customsql:"no_answer_count;null"`
+	CallsAnswered      int64  `xml:"-" json:"calls_answered" customsql:"calls_answered;null"`
+	TalkTime           int64  `xml:"-" json:"talk_time" customsql:"talk_time;null"`
+	ReadyTime          int64  `xml:"-" json:"ready_time" customsql:"ready_time;null"`
+	ExternalCallsCount int64  `xml:"-" json:"external_calls_count" customsql:"external_calls_count;null"`
+}
+
+func (w *Agent) GetTableName() string {
+	return "agents"
 }
 
 type Tier struct {
@@ -73,6 +78,10 @@ type Tier struct {
 	Level    int64  `xml:"-" json:"level" customsql:"level"`
 	Position int64  `xml:"-" json:"position" customsql:"position"`
 	State    string `xml:"-" json:"state" customsql:"state"`
+}
+
+func (w *Tier) GetTableName() string {
+	return "tiers"
 }
 
 type Member struct {
@@ -92,4 +101,8 @@ type Member struct {
 	ServingAgent   string `xml:"-" json:"serving_agent" customsql:"serving_agent"`
 	ServingSystem  string `xml:"-" json:"serving_system" customsql:"serving_system"`
 	State          string `xml:"-" json:"state" customsql:"state"`
+}
+
+func (w *Member) GetTableName() string {
+	return "members"
 }

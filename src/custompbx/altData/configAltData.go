@@ -1047,7 +1047,7 @@ func XMLCallcenter(name string, arg string) *mainStruct.Configuration {
 		filter["Name"] = true
 	}
 	profiles, _ := intermediateDB.GetByValue(
-		&altStruct.ConfigCallcenterQueue{Parent: &altStruct.ConfigurationsList{Id: c.Id}, Name: arg},
+		&altStruct.ConfigCallcenterQueue{Parent: &altStruct.ConfigurationsList{Id: c.Id}, Name: arg, Enabled: true},
 		filter,
 	)
 
@@ -2982,7 +2982,7 @@ func SetConfigSofiaGatewayParam(parentId int64, name, value string) (int64, erro
 }
 
 func SetConfigSofiaGatewayVar(parentId int64, name, value, direction string) (int64, error) {
-	return intermediateDB.InsertItem(&altStruct.ConfigSofiaProfileGatewayParameter{
+	return intermediateDB.InsertItem(&altStruct.ConfigSofiaProfileGatewayVariable{
 		Name:    name,
 		Value:   value,
 		Parent:  &altStruct.ConfigSofiaProfileGateway{Id: parentId},

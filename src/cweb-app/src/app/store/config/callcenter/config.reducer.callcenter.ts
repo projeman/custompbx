@@ -44,6 +44,13 @@ export function reducer(state = initialState, action: All): State {
         }, loadCounter: state.loadCounter + 1};
     }
 
+    case ConfigActionTypes.StoreSendCallcenterCommand: {
+      return {
+        ...state,
+        loadCounter: state.loadCounter > 0 ? --state.loadCounter : 0,
+      };
+    }
+
     case ConfigActionTypes.StoreGotCallcenterError: {
       return {
         ...state,

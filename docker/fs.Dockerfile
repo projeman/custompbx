@@ -4,21 +4,6 @@ FROM debian:bookworm AS builder
 # Set SIGNALWIRE_TOKEN build argument
 ARG SIGNALWIRE_TOKEN
 
-# Set XML_CURL_SERVER_HOST build argument
-ARG XML_CURL_SERVER_HOST
-
-# Set XML_CURL_SERVER_PORT build argument
-ARG XML_CURL_SERVER_PORT
-
-# Set XML_CURL_SERVER_ROUTE build argument
-ARG XML_CURL_SERVER_ROUTE
-
-# Set MEDIA_PORT_START build argument
-ARG MEDIA_PORT_START
-
-# Set MEDIA_PORT_END build argument
-ARG MEDIA_PORT_END
-
 # explicitly set user/group IDs
 RUN groupadd -r freeswitch --gid=999 && useradd -r -g freeswitch --uid=999 freeswitch
 
@@ -111,25 +96,12 @@ RUN if [ -f /etc/freeswitch/autoload_configs/event_socket.conf.xml ]; then \
     sed -i 's|<!--<param name="apply-inbound-acl" value="loopback.auto"/>-->|<param name="apply-inbound-acl" value="localnet.auto"/>|' /etc/freeswitch/autoload_configs/event_socket.conf.xml; \
   fi
 
-# Replace xml_curl.conf.xml with customized version
-RUN echo '<configuration name="xml_curl.conf" description="cURL XML Gateway">' > /etc/freeswitch/autoload_configs/xml_curl.conf.xml && \
-    echo '  <bindings>' >> /etc/freeswitch/autoload_configs/xml_curl.conf.xml && \
-    echo '    <binding name="example">' >> /etc/freeswitch/autoload_configs/xml_curl.conf.xml && \
-    echo '      <param name="gateway-url" value="https://'${XML_CURL_SERVER_HOST}':'${XML_CURL_SERVER_PORT}'/'${XML_CURL_SERVER_ROUTE}'" bindings="configuration|directory|dialplan"/>' >> /etc/freeswitch/autoload_configs/xml_curl.conf.xml && \
-    echo '    </binding>' >> /etc/freeswitch/autoload_configs/xml_curl.conf.xml && \
-    echo '  </bindings>' >> /etc/freeswitch/autoload_configs/xml_curl.conf.xml && \
-    echo '</configuration>' >> /etc/freeswitch/autoload_configs/xml_curl.conf.xml
-
 # Modify the vars.xml file
 RUN sed -i 's|<X-PRE-PROCESS cmd="stun-set" data="external_rtp_ip=stun:stun.freeswitch.org"/>|<X-PRE-PROCESS cmd="set" data="external_rtp_ip=127.0.0.1"/>|' /etc/freeswitch/vars.xml && \
     sed -i 's|<X-PRE-PROCESS cmd="stun-set" data="external_sip_ip=stun:stun.freeswitch.org"/>|<X-PRE-PROCESS cmd="set" data="external_sip_ip=127.0.0.1"/>|' /etc/freeswitch/vars.xml
 
 RUN rm /etc/freeswitch/sip_profiles/internal-ipv6.xml
 RUN rm /etc/freeswitch/sip_profiles/external-ipv6.xml
-
-# Left some mediaports for expose
-RUN sed -i 's|<!-- <param name="rtp-start-port" value="16384"/> -->|<param name="rtp-start-port" value="${MEDIA_PORT_START}"/>|' /etc/freeswitch/autoload_configs/switch.conf.xml && \
-    sed -i 's|<!-- <param name="rtp-end-port" value="32768"\/> -->|<param name="rtp-end-port" value="${MEDIA_PORT_END}"/>|' /etc/freeswitch/autoload_configs/switch.conf.xml
 
 RUN sed -i 's/<param name="sip-capture" value="no"\/>/<param name="sip-capture" value="yes"\/>/g' /etc/freeswitch/sip_profiles/internal.xml
 RUN sed -i 's/<param name="rtp-ip" value="\$\${local_ip_v4}"\/>/<param name="rtp-ip" value="freeswitch-host"\/>/g' /etc/freeswitch/sip_profiles/internal.xml
@@ -141,6 +113,8 @@ RUN sed -i '/<param name="apply-nat-acl" value="rfc1918.auto"\/>/a\ <param name=
 COPY ./docker/fs_conf/sofia.conf.xml /etc/freeswitch/autoload_configs/
 COPY ./docker/fs_conf/modules.conf.xml /etc/freeswitch/autoload_configs/
 COPY ./docker/fs_conf/cdr_pg_csv.conf.xml /etc/freeswitch/autoload_configs/
+COPY ./docker/fs_conf/switch.conf.xml /etc/freeswitch/autoload_configs/
+COPY ./docker/fs_conf/xml_curl.conf.xml /etc/freeswitch/autoload_configs/
 
 # ====== FINAL STAGE ======
 FROM debian:bookworm
